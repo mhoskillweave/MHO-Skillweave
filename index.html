@@ -158,13 +158,14 @@ function recCompare(){
   const rows=[...names].filter(n=>SK[n]&&!S.targets.includes(n)).map(n=>({n,v:T.map(t=>val(t,n))})).filter(x=>x.v.some(q=>q>0));
   const mxv=x=>Math.max(...x.v),diff=rows.filter(x=>new Set(x.v).size>1).sort((a,b)=>mxv(b)-mxv(a)),same=rows.filter(x=>new Set(x.v).size===1).sort((a,b)=>mxv(b)-mxv(a));
   const sec=t=>`<tr class="sec"><th colspan="${cols}">${t}</th></tr>`;
-  const skRow=(x,tgt,dim)=>{const m=Math.max(...x.v),dd=new Set(x.v).size>1;return`<tr class="${dim?'dim':''}"><th>${tgt&&x.n===S.main?'✔ ':''}${sn(x.n)} <small>/${mx(x.n)}</small></th>${x.v.map(v=>`<td class="${dd&&v===m?'hi':''}${v>=mx(x.n)?' mx':''}">${v||'–'}</td>`).join('')}</tr>`};
+  const stip=(n,l)=>esc(`<b>${sn(n)}${l?' Lv'+l:''}</b><br>${desc(n)}${lvTip(n,l)}`);
+  const skRow=(x,tgt,dim)=>{const m=Math.max(...x.v),dd=new Set(x.v).size>1;return`<tr class="${dim?'dim':''}"><th data-tip="${stip(x.n,0)}">${tgt&&x.n===S.main?'✔ ':''}${sn(x.n)} <small>/${mx(x.n)}</small><b class="ib" data-info="1">i</b></th>${x.v.map(v=>`<td class="${dd&&v===m?'hi':''}${v>=mx(x.n)?' mx':''}"${v?` data-tip="${stip(x.n,v)}"`:''}>${v||'–'}</td>`).join('')}</tr>`};
   const tg=S.targets.map(n=>({n,v:T.map(t=>val(t,n))}));
   const pieceRows=PARTS.map((p,j)=>{const df=new Set(R.map(r=>r.p[j]&&r.p[j].id)).size>1;return`<tr><th>${PK[p]}</th>${R.map(r=>`<td class="${df&&r.p[j]?'df':''}" ${r.p[j]?`data-tip="${esc(itemTip(r.p[j]))}"`:''}>${r.p[j]?an(r.p[j])+'<b class="ib" data-info="1">i</b>':'–'}</td>`).join('')}</tr>`}).join('');
   const setRow=T.map(t=>Object.entries(t.sc).filter(([k,c])=>D.set_skills.some(x=>x.name===k&&x.pieces<=c)).map(([k,c])=>ssn(k)+'×'+c).join('<br>'));
   const head=`<tr><th></th>${R.map((r,i)=>`<th class="${i===S.applied?'ap':''}">#${i+1}<br><small>${r.n}${L2('부위','pcs')} · ${L2('방어력','DEF')} ${r.def}</small>${r.short?`<br><small class="bad">${L2('메인 만렙 불가','Main not maxed')}</small>`:''}<br><button data-apply="${i}">${i===S.applied?L2('적용됨','Applied'):L2('적용','Apply')}</button></th>`).join('')}</tr>`;
   const note='';
-  const chipv=(x,i,cls)=>x.v[i]?`<span class="chip ${cls||''}${x.v[i]>=mx(x.n)?' max':''}">${sn(x.n)} ${x.v[i]}</span>`:'';
+  const chipv=(x,i,cls)=>x.v[i]?`<span class="chip ${cls||''}${x.v[i]>=mx(x.n)?' max':''}" data-tip="${stip(x.n,x.v[i])}">${sn(x.n)} ${x.v[i]}<b class="ib" data-info="1">i</b></span>`:'';
   const mob=R.map((r,i)=>{const hiOf=x=>new Set(x.v).size>1&&x.v[i]===Math.max(...x.v)&&x.v[i]>0;
     return`<div class="rcc${i===S.applied?' ap':''}"><div class="rch"><b>#${i+1}</b> <small>${r.n}${L2('부위','pcs')} · ${L2('방어력','DEF')} ${r.def}</small><button data-apply="${i}">${i===S.applied?L2('적용됨','Applied'):L2('적용','Apply')}</button></div>`+
     PARTS.map((p,j)=>{const df=new Set(R.map(q=>q.p[j]&&q.p[j].id)).size>1;return`<div class="rcp${df&&r.p[j]?' df':''}"${r.p[j]?` data-tip="${esc(itemTip(r.p[j]))}"`:''}><span>${PK[p]}</span><span>${r.p[j]?an(r.p[j])+'<b class="ib" data-info="1">i</b>':'–'}</span></div>`}).join('')+
